@@ -4,11 +4,6 @@
 This project demonstrates the design and implementation of a fully functional enterprise-grade three-tier hierarchical network built in Cisco Packet Tracer. I configured Layer 3 routing with OSPF, gateway redundancy with HSRP, link aggregation with EtherChannel (LACP), inter-VLAN routing, centralized DHCP with relay, dual-ISP NAT, and a full suite of Layer 2 security features. This lab simulates a real-world corporate campus network covering the core, distribution, and access layers.
 
 ---
-Topology Overview
-<p align="center">
-<img src="https://imgur.com/a/AQreICR/>
-</p>
----
 
 ## 🛠️ Technologies & Protocols
 * **Routing:** OSPF (Single Area 0), Floating Static Routes (Dual ISP Failover)
@@ -30,10 +25,17 @@ The network follows the standard hierarchical design:
 * **Distribution:** Two switches (DSW1/DSW2) handling routing and SVIs.
 * **Access:** Three switches (ASW1–ASW3) dual-homed for redundancy.
 
+<img width="1928" height="1083" alt="Screenshot 2026-04-21 132015" src="https://github.com/user-attachments/assets/5cd4f9a9-8195-4b28-9fee-5b8090a3a6b2" />
+
+
 ### 2. VLANs, VTP, and Trunking
 * **VLANs:** 10 (PCs), 20 (Phones), 30 (Servers), 99 (Management).
 * **VTP:** DSW1 configured as VTP Server to propagate VLANs.
-* **Trunking:** 802.1Q trunks on all uplinks with an unused Native VLAN (1000) and DTP disabled via `nonegotiate`.
+* **Trunking:** 802.1Q trunks on all uplinks with an unused Native VLAN (1000) and DTP disabled via `nonegotiate`
+
+<img width="1919" height="1083" alt="Screenshot 2026-04-16 123329" src="https://github.com/user-attachments/assets/0cf59da8-bf3d-45f1-a87f-b0747b109283" />
+<img width="1922" height="1083" alt="Screenshot 2026-04-16 123343" src="https://github.com/user-attachments/assets/023c8da9-cfe9-4b98-93ab-ff4d0b8200b7" />
+<img width="1928" height="1083" alt="Screenshot 2026-04-16 121402" src="https://github.com/user-attachments/assets/f77705aa-b4ea-4026-ab0a-951cbb3efc3f" />
 
 ### 3. EtherChannel (LACP)
 I configured **Port-channel 1** using LACP (mode active) for the CSW1↔CSW2 and DSW1↔DSW2 links. 
@@ -41,11 +43,19 @@ I configured **Port-channel 1** using LACP (mode active) for the CSW1↔CSW2 and
 * **Distribution:** Layer 2 trunks.
 This provides link redundancy and aggregates bandwidth.
 
+<img width="1918" height="1083" alt="Screenshot 2026-04-16 120531" src="https://github.com/user-attachments/assets/293d8a55-a35f-4946-8c68-b05f8376d9c7" />
+
+
 ### 4. Rapid-PVST+ & STP Root Placement
 To prevent suboptimal forwarding, STP Root placement was aligned with HSRP roles:
 * **DSW1:** Primary Root for VLANs 10, 99 | Secondary for 20, 30.
 * **DSW2:** Primary Root for VLANs 20, 30 | Secondary for 10, 99.
 * **Access:** PortFast and BPDU Guard enabled on all end-device ports.
+
+<img width="1918" height="1083" alt="Screenshot 2026-04-16 171325" src="https://github.com/user-attachments/assets/89e948c6-5c6a-465b-99e5-7fc4185f9b19" />
+<img width="1907" height="1083" alt="Screenshot 2026-04-16 171849" src="https://github.com/user-attachments/assets/ce4bc6b1-a810-4d37-8041-e502395bb548" />
+<img width="1917" height="1083" alt="Screenshot 2026-04-16 135617" src="https://github.com/user-attachments/assets/97ac4e11-c27d-4230-ab31-15e6ee409602" />
+<img width="1907" height="1083" alt="Screenshot 2026-04-16 171849" src="https://github.com/user-attachments/assets/425543d5-abf8-4197-bde6-e9457b7580f5" />
 
 ### 5. Inter-VLAN Routing & HSRP Redundancy
 Configured SVI interfaces on DSW1/DSW2 with HSRP v2 for load balancing:
@@ -57,14 +67,26 @@ Configured SVI interfaces on DSW1/DSW2 with HSRP v2 for load balancing:
 | **30 (Servers)** | 10.3.0.1 | DSW2 | 105 |
 | **99 (Mgmt)** | 10.0.0.1 | DSW1 | 105 |
 
+<img width="1909" height="1083" alt="Screenshot 2026-04-16 170457" src="https://github.com/user-attachments/assets/4cb74a7e-ee60-4a2f-91f6-3eb89931e2e0" />
+<img width="1925" height="1083" alt="Screenshot 2026-04-16 161146" src="https://github.com/user-attachments/assets/973530f7-c749-463b-922a-eb7a2d8cc0f9" />
+<img width="1913" height="1083" alt="Screenshot 2026-04-16 170505" src="https://github.com/user-attachments/assets/c969c521-c6cb-4eb5-95cf-c1f12005c18a" />
+
+
 ### 6. OSPF Single-Area Routing
 OSPF Area 0 configured across R1, CSW1, CSW2, DSW1, and DSW2.
 * **Router-ID:** Stable Loopback0 interfaces used.
 * **Passive Interfaces:** Enabled on SVIs/Loopbacks to suppress unnecessary hellos.
 * **Internet:** R1 injects a default route using `default-information originate`.
 
+<img width="1921" height="1083" alt="Screenshot 2026-04-16 175332" src="https://github.com/user-attachments/assets/91075c41-6824-4486-b08b-59abeb92a30b" />
+ <img width="1900" height="1083" alt="Screenshot 2026-04-16 174531" src="https://github.com/user-attachments/assets/2712ead1-3ffe-494b-81a6-c39b20d9e801" />
+
+
 ### 7. Centralized DHCP & IP Helper
 R1 serves as the central DHCP server. I implemented `ip helper-address 10.0.0.44` on all SVIs to relay DHCP broadcasts to the router across Layer 3 boundaries.
+
+<img width="1907" height="1083" alt="Screenshot 2026-04-16 181117" src="https://github.com/user-attachments/assets/648aa9d4-7892-4e1c-a523-609db29e247e" />
+<img width="1907" height="1083" alt="Screenshot 2026-04-16 171849" src="https://github.com/user-attachments/assets/425543d5-abf8-4197-bde6-e9457b7580f5" />
 
 ### 8. NAT / PAT & Dual ISP Failover
 * **PAT:** Configured on R1 for public internet access.
@@ -76,11 +98,20 @@ R1 serves as the central DHCP server. I implemented `ip helper-address 10.0.0.44
 * **DHCP Snooping & DAI:** Enabled on access switches to prevent rogue DHCP servers and ARP spoofing.
 * **Rate Limiting:** Untrusted ports limited to 15 pps.
 * **Port Security:** Restricted MAC address learning on access ports.
+* 
+<img width="1920" height="1080" alt="Screenshot 2026-04-17 193745" src="https://github.com/user-attachments/assets/19a643f8-dbc5-4536-8ef4-53ea225fa4d5" />
+
 
 ### 10. SSH Management & ACLs
 * **SSH v2:** Enabled on all devices for secure management.
 * **Access Control:** VTY lines restricted via ACL to the management subnet (10.1.0.0/24).
 * **Syslog:** All system logs are forwarded to **SRV1 (10.3.0.4)**.
+
+<img width="1922" height="1083" alt="Screenshot 2026-04-21 125834" src="https://github.com/user-attachments/assets/8a1f2e6d-d57d-48ff-8ac7-3617b88dece9" />
+
+<img width="1897" height="1083" alt="Screenshot 2026-04-21 130303" src="https://github.com/user-attachments/assets/45da8ebc-6db9-4589-bf8a-bb45f9ce26bd" />
+
+<img width="1920" height="1080" alt="Screenshot 2026-04-17 200332" src="https://github.com/user-attachments/assets/12a2edc6-424e-428c-8ebf-960b505b1f9d" />
 
 ---
 
@@ -99,20 +130,20 @@ R1 serves as the central DHCP server. I implemented `ip helper-address 10.0.0.44
 ---
 
 ## 🏆 Skills
-Enterprise three-tier hierarchical network design
-OSPF single-area configuration, router-IDs, passive interfaces, default route injection
-HSRP v2 per-VLAN active/standby with load balancing and preempt
-EtherChannel (LACP) on Layer 2 and Layer 3 port-channels
-Rapid-PVST+ with manual STP root alignment to HSRP roles
-802.1Q trunking, VTP v2, native VLAN security, DTP disable
-Voice VLAN (VLAN 20) with IP phone integration
-Centralized DHCP with `ip helper-address` relay across Layer 3
-NAT overload (PAT) and static NAT with dual-ISP floating static failover
-DHCP Snooping, Dynamic ARP Inspection (DAI), rate limiting
-Port Security (max 2 MACs, restrict violation)
-PortFast and BPDU Guard on all access-facing ports
-SSH v2 with ACL-based VTY restriction and local authentication
-Syslog centralization to a dedicated server
-Unused port shutdown across all switches
----
+* Enterprise three-tier hierarchical network design
+* OSPF single-area configuration, router-IDs, passive interfaces, default route injection
+* HSRP v2 per-VLAN active/standby with load balancing and preempt
+* EtherChannel (LACP) on Layer 2 and Layer 3 port-channels
+* Rapid-PVST+ with manual STP root alignment to HSRP roles
+* 802.1Q trunking, VTP v2, native VLAN security, DTP disable
+* Voice VLAN (VLAN 20) with IP phone integration
+* Centralized DHCP with `ip helper-address` relay across Layer 3
+* NAT overload (PAT) and static NAT with dual-ISP floating static failover
+* DHCP Snooping, Dynamic ARP Inspection (DAI), rate limiting
+* Port Security (max 2 MACs, restrict violation)
+* PortFast and BPDU Guard on all access-facing ports
+* SSH v2 with ACL-based VTY restriction and local authentication
+* Syslog centralization to a dedicated server
+* Unused port shutdown across all switches
+
 
